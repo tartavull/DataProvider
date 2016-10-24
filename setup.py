@@ -24,7 +24,7 @@ test_requirements = [
 
 setup(
     name='dataprovider',
-    version='0.1.2',
+    version='0.1.3',
     description="Deep learning platform-independent volumetric data provider for training 3D convolutional network.",
     long_description=readme + '\n\n' + history,
     author="Seung Lab",
@@ -43,7 +43,7 @@ setup(
     include_package_data=True,
     package_data = {
         # If any package contains *.txt or *.rst files, include them:
-        '': ['*.txt', '*.xml', '*.html', '*.js']
+        '': ['*.txt', '*.xml', '*.html', '*.js','*.c','*.pyx']
     },
     install_requires=requirements,
     license="MIT license",
