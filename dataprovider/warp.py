@@ -8,7 +8,7 @@ Kisuk Lee <kisuklee@mit.edu>, 2016
 
 from box import Box
 import data_augmentation
-from warping import warping
+from warping import _warping
 import numpy as np
 from utils import check_tensor, check_volume
 from vector import Vec3d
