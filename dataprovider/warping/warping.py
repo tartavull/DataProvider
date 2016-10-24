@@ -6,8 +6,6 @@
 # Authors: Marius Killinger, Gregor Urban
 
 import time
-import matplotlib.pyplot as plt
-
 import numpy as np
 
 # try:
