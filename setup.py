@@ -43,7 +43,7 @@ setup(
     include_package_data=True,
     package_data = {
         # If any package contains *.txt or *.rst files, include them:
-        '': ['*.txt', '*.xml', '*.html', '*.js']
+        '': ['*.txt', '*.xml', '*.html', '*.js','*.c','*.pyx']
     },
     install_requires=requirements,
     license="MIT license",
