@@ -24,7 +24,7 @@ test_requirements = [
 
 setup(
     name='dataprovider',
-    version='0.1.1',
+    version='0.1.2',
     description="Deep learning platform-independent volumetric data provider for training 3D convolutional network.",
     long_description=readme + '\n\n' + history,
     author="Seung Lab",
