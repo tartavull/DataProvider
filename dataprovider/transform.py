@@ -268,15 +268,26 @@ def binarize(img, dtype='float32'):
     return ret
 
 
-def multiclass_expansion(img, N, dtype='float32'):
-    """
-    TODO(kisuk): Semantic segmentation.
+def multiclass_expansion(img, ids, dtype='float32'):
+    """Expand an indexed image to one-hot representation for multiclass
+    classification.
+
+    Args:
+        img: 3D indexed image, with each index corresponding to each class.
+        ids: a list of class IDs to expand.
+
+    Returns:
+        ret: an expanded 4D tensor.
+        msk:
     """
     img = check_volume(img)
-    ret = np.zeros((N,) + img.shape, dtype=dtype)
-    for l in range(N):
-        ret[l,...] = (img == l)
-    return ret
+    ret = np.zeros((len(ids),) + img.shape, dtype=dtype)
+    msk = np.zeros(img.shape, dtype=dtype)
+    for i, l in enumerate(ids):
+        idx = (img == l)
+        msk[idx] = 1
+        ret[i,...] = idx.astype(dtype)
+    return ret, msk
 
 
 def binary_class(img, dtype='float32'):
@@ -285,7 +296,8 @@ def binary_class(img, dtype='float32'):
     """
     img = check_volume(img)
     img = binarize(img, dtype=dtype)
-    return multiclass_expansion(img, N=2, dtype=dtype)
+    ret, _ = multiclass_expansion(img, ids=[0,1], dtype=dtype)
+    return ret
 
 
 def affinitize(img, dst=(1,1,1), dtype='float32'):
@@ -378,18 +390,13 @@ def affinitize_mask(msk, dst=(1,1,1), dtype='float32'):
 ## Rebalancing
 ####################################################################
 
-def rebalance_class(img, dtype='float32'):
-    """
-    TODO(kisuk): Documentation.
-    """
+def rebalance_class(img, msk=None, dtype='float32'):
+    """Class-rebalancing."""
     img = check_volume(img)
     ret = np.zeros(img.shape, dtype=dtype)
 
-    num_lbls = list()
-    unique_lbl = np.unique(img)
-    for lbl in unique_lbl:
-        num_lbl = np.count_nonzero(img==lbl)
-        num_lbls.append(num_lbl)
+    masked = img if msk is None else img[msk>0]
+    unique_lbl, num_lbls = np.unique(masked, return_counts=True)
     assert(len(num_lbls)>0)
 
     if len(num_lbls)==1:
@@ -400,12 +407,35 @@ def rebalance_class(img, dtype='float32'):
         #   segmentation).
         ret[:] = 0.5
     else:
-        weights = 1.0/np.asarray(num_lbls)
+        weights = 1.0/num_lbls
         weights = weights/np.sum(weights)
         for idx, lbl in enumerate(unique_lbl):
             ret[img==lbl] = weights[idx]
 
     return ret
+
+
+# def rebalance_class(img, dtype='float32'):
+#     """Class-rebalancing."""
+#     img = check_volume(img)
+#     ret = np.zeros(img.shape, dtype=dtype)
+#
+#     _, idx, cnt = np.unique(img, return_inverse=True, return_counts=True)
+#     assert(len(cnt)>0)
+#
+#     if len(cnt)==1:
+#         # TODO(kisuk):
+#         #   This is to make rebalancing exactly the same as in ZNNv1 and v4,
+#         #   but not sure about how reasonable this value (0.5) is, and about
+#         #   if this can also be applied to multiclass case (e.g. semantic
+#         #   segmentation).
+#         ret[:] = 0.5
+#     else:
+#         weights = 1.0/cnt
+#         weights = weights/np.sum(weights)
+#         ret = weights[idx.reshape(ret.shape)]
+#
+#     return ret
 
 ########################################################################
 ## Unit Testing
